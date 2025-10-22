@@ -71,30 +71,16 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
       <div className="w-full max-w-md p-8 space-y-6">
-
-        {/* IMAGEN reemplazada*/}
-        {/* <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6">
           <div className="relative">
             <Mountain className="h-20 w-20 text-primary" />
-            {/* <img src='/public/favicon.ico' alt='logo' className='h-10 w-10 text-secondary absolute -bottom-2 -right-2' /> * /}
+            {/* <img src='/public/favicon.ico' alt='logo' className='h-10 w-10 text-secondary absolute -bottom-2 -right-2' /> */}
             <Calendar className="h-10 w-10 text-secondary absolute -bottom-2 -right-2" />
-            {/* <img src='/public/favicon.ico' alt='logo' className='h-10 w-10 text-secondary absolute -bottom-2 -right-2' /> * /}
-          </div>
-        </div> */}
-
-        {/* IMAGEN ACTUALIZADA*/}
-        <div className="flex justify-center mb-6">
-          <div className="relative p-2">
-            <img src='/public/favicon.ico' alt='logo' className='h-24 w-24 rounded-xl shadow-inner' />
+            {/* <img src='/public/favicon.ico' alt='logo' className='h-10 w-10 text-secondary absolute -bottom-2 -right-2' /> */}
           </div>
         </div>
         
-        {/* <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          OronixOS
-        </h1> */}
-
-        {/* TITULO ACTUALIZADO: Alto impacto, degradado Azul Marino a Celeste. */}
-        <h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-blue-900 to-sky-400 bg-clip-text text-transparent tracking-tight sm:text-6xl">
+        <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           OronixOS
         </h1>
         
