@@ -1,6 +1,7 @@
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, format, isSameMonth, isSameDay } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS } from 'date-fns/locale';
 import { useEvents } from '@/contexts/EventsContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
 import EventDetailsDialog from './EventDetailsDialog';
 import type { CalendarEvent } from '@/types/event';
@@ -13,15 +14,19 @@ interface MonthViewProps {
 
 const MonthView = ({ selectedDate, setSelectedDate, onDateClick }: MonthViewProps) => {
   const { events } = useEvents();
+  const { language } = useLanguage();
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
+  const locale = language === 'es' ? es : enUS;
   const monthStart = startOfMonth(selectedDate);
   const monthEnd = endOfMonth(selectedDate);
-  const calendarStart = startOfWeek(monthStart, { locale: es });
-  const calendarEnd = endOfWeek(monthEnd, { locale: es });
+  const calendarStart = startOfWeek(monthStart, { locale });
+  const calendarEnd = endOfWeek(monthEnd, { locale });
   
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-  const weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  const weekDays = language === 'es' 
+    ? ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const getEventsForDay = (day: Date) => {
     return events.filter(event => isSameDay(event.startDate, day));

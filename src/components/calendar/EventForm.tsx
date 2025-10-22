@@ -188,10 +188,10 @@ const EventForm = ({ type, open, onOpenChange, event, initialData }: EventFormPr
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Notificaciones</Label>
+              <Label>{t('notifications')}</Label>
               <Button type="button" variant="outline" size="sm" onClick={addNotification}>
                 <Plus className="h-4 w-4 mr-1" />
-                Agregar
+                {t('add')}
               </Button>
             </div>
             {notifications.length === 0 ? (
@@ -208,9 +208,9 @@ const EventForm = ({ type, open, onOpenChange, event, initialData }: EventFormPr
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="5">5 minutos antes</SelectItem>
-                        <SelectItem value="15">15 minutos antes</SelectItem>
-                        <SelectItem value="30">30 minutos antes</SelectItem>
+                        <SelectItem value="5">5 {t('minutesBefore')}</SelectItem>
+                        <SelectItem value="15">15 {t('minutesBefore')}</SelectItem>
+                        <SelectItem value="30">30 {t('minutesBefore')}</SelectItem>
                         <SelectItem value="60">1 hora antes</SelectItem>
                         <SelectItem value="120">2 horas antes</SelectItem>
                         <SelectItem value="1440">1 día antes</SelectItem>

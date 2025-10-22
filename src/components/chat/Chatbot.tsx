@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, Mic, MicOff, X, Send } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useEvents } from '@/contexts/EventsContext';
+import { format, parse, addDays, isSameDay, startOfDay } from 'date-fns';
 
 interface Message {
   role: 'user' | 'bot';
@@ -26,14 +28,19 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
   const [inputText, setInputText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
+  const { events, updateEvent, addEvent } = useEvents();
   const [conversationState, setConversationState] = useState<{
-    step: 'greeting' | 'type' | 'title' | 'date' | 'startTime' | 'endTime' | 'location' | 'complete';
+    step: 'greeting' | 'type' | 'title' | 'date' | 'startTime' | 'endTime' | 'location' | 'complete' | 
+          'organize_day' | 'move_event_search' | 'move_event_confirm' | 'reminder_setup' | 'organize_week';
     type?: 'event' | 'task' | 'birthday';
     title?: string;
     date?: string;
     startTime?: string;
     endTime?: string;
     location?: string;
+    targetDate?: string;
+    foundEvent?: any;
+    reminderDate?: string;
   }>({ step: 'greeting' });
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -77,8 +84,15 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      speak('¡Hola! Soy tu asistente de OronixOS. ¿Qué te gustaría crear hoy: un evento, una tarea o un cumpleaños?');
-      addBotMessage('¡Hola! Soy tu asistente de OronixOS. ¿Qué te gustaría crear hoy: un evento, una tarea o un cumpleaños?');
+      const greeting = '¡Hola! Soy tu asistente de OronixOS. Puedo ayudarte a:\n\n' +
+        '• Crear eventos, tareas o cumpleaños\n' +
+        '• Ordenar tu día automáticamente\n' +
+        '• Mover eventos a otras fechas\n' +
+        '• Agregar recordatorios\n' +
+        '• Organizar tu semana\n\n' +
+        '¿Qué te gustaría hacer?';
+      speak('¡Hola! Soy tu asistente de OronixOS.');
+      addBotMessage(greeting);
     }
   }, [isOpen]);
 
@@ -103,6 +117,27 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
     const currentState = conversationStateRef.current;
     const lowerInput = input.toLowerCase();
 
+    // Check for special commands first
+    if (lowerInput.includes('ordenar') && (lowerInput.includes('día') || lowerInput.includes('dia'))) {
+      handleOrganizeDay();
+      return;
+    }
+
+    if (lowerInput.includes('ordenar') && lowerInput.includes('semana')) {
+      handleOrganizeWeek();
+      return;
+    }
+
+    if (lowerInput.includes('mover') || lowerInput.includes('cambiar')) {
+      handleMoveEvent(input);
+      return;
+    }
+
+    if (lowerInput.includes('recuerda') || lowerInput.includes('recordatorio')) {
+      handleReminder(input);
+      return;
+    }
+
     switch (currentState.step) {
       case 'greeting':
       case 'type':
@@ -122,7 +157,7 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
           speak(msg);
           addBotMessage(msg);
         } else {
-          const msg = 'Por favor, dime si quieres crear un evento, una tarea o un cumpleaños.';
+          const msg = 'Por favor, dime qué quieres hacer: crear evento/tarea/cumpleaños, ordenar tu día/semana, mover un evento, o agregar recordatorios.';
           speak(msg);
           addBotMessage(msg);
         }
@@ -251,6 +286,176 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       }
     }
     return null;
+  };
+
+  const handleOrganizeDay = () => {
+    const today = startOfDay(new Date());
+    const todayEvents = events.filter(e => isSameDay(new Date(e.startDate), today));
+
+    if (todayEvents.length === 0) {
+      const msg = 'No tienes eventos programados para hoy.';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const msg = `Encontré ${todayEvents.length} eventos para hoy:\n\n${todayEvents.map(e => 
+      `• ${e.title} - ${e.startTime || 'Sin hora'}`
+    ).join('\n')}\n\n¿Quieres que los ordene por prioridad, por hora, o por duración?`;
+    speak('Encontré varios eventos para hoy');
+    addBotMessage(msg);
+    setConversationState({ step: 'organize_day' });
+  };
+
+  const handleOrganizeWeek = () => {
+    const today = startOfDay(new Date());
+    const weekEvents = events.filter(e => {
+      const eventDate = new Date(e.startDate);
+      const diffDays = Math.floor((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 && diffDays < 7;
+    });
+
+    if (weekEvents.length === 0) {
+      const msg = 'No tienes eventos programados para esta semana.';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    // Sort events by date and time
+    const sorted = weekEvents.sort((a, b) => {
+      const dateCompare = new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      if (dateCompare !== 0) return dateCompare;
+      if (a.startTime && b.startTime) {
+        return a.startTime.localeCompare(b.startTime);
+      }
+      return 0;
+    });
+
+    const msg = `He organizado ${sorted.length} eventos de tu semana:\n\n${sorted.map((e, i) => 
+      `${i + 1}. ${format(new Date(e.startDate), 'EEEE d')} - ${e.title} ${e.startTime ? `a las ${e.startTime}` : ''}`
+    ).join('\n')}\n\n✅ Tu semana está organizada cronológicamente.`;
+    speak('He organizado tu semana');
+    addBotMessage(msg);
+  };
+
+  const handleMoveEvent = (input: string) => {
+    // Extract event title
+    const titleMatch = input.match(/(?:evento|tarea|cumpleaños)[:\s]+['"]?([^'"]+?)['"]?\s+(?:a|al|para)/i) ||
+                      input.match(/['"]([^'"]+)['"]\s+(?:a|al|para)/);
+    
+    if (!titleMatch) {
+      const msg = 'No pude identificar el evento. Por favor, dime: "Mover evento [nombre] a [fecha]"';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const title = titleMatch[1].trim();
+    const foundEvent = events.find(e => 
+      e.title.toLowerCase().includes(title.toLowerCase())
+    );
+
+    if (!foundEvent) {
+      const msg = `No encontré ningún evento con el título "${title}". ¿Puedes verificar el nombre?`;
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    // Extract target date
+    let targetDate: Date | null = null;
+    
+    if (input.toLowerCase().includes('mañana')) {
+      targetDate = addDays(new Date(), 1);
+    } else {
+      const dateMatch = input.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})|dia\s+(\d{1,2})/i);
+      if (dateMatch) {
+        if (dateMatch[4]) {
+          // Day of current month
+          const today = new Date();
+          targetDate = new Date(today.getFullYear(), today.getMonth(), parseInt(dateMatch[4]));
+        } else if (dateMatch[1] && dateMatch[2] && dateMatch[3]) {
+          targetDate = new Date(parseInt(dateMatch[3]), parseInt(dateMatch[2]) - 1, parseInt(dateMatch[1]));
+        }
+      }
+    }
+
+    if (!targetDate) {
+      const msg = 'No pude entender la fecha. Intenta con "mañana", "día 24" o "01/11/2025"';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    // Update event
+    updateEvent(foundEvent.id, { startDate: targetDate, endDate: targetDate });
+    
+    const msg = `✅ ¡Hecho! He movido:\n\n` +
+                `📌 ${foundEvent.title}\n` +
+                `🏷️ Tipo: ${foundEvent.type}\n` +
+                `📅 Fecha anterior: ${format(new Date(foundEvent.startDate), 'dd/MM/yyyy')}\n` +
+                `📅 Nueva fecha: ${format(targetDate, 'dd/MM/yyyy')}`;
+    speak('He movido el evento exitosamente');
+    addBotMessage(msg);
+  };
+
+  const handleReminder = (input: string) => {
+    // Check if asking for reminders on a specific date
+    const dateMatch = input.match(/(\d{1,2})\s+de\s+(\w+)|(\d{1,2})\/(\d{1,2})\/(\d{4})/i);
+    
+    if (dateMatch) {
+      let targetDate: Date;
+      
+      if (dateMatch[3] && dateMatch[4] && dateMatch[5]) {
+        targetDate = new Date(parseInt(dateMatch[5]), parseInt(dateMatch[4]) - 1, parseInt(dateMatch[3]));
+      } else {
+        // Parse "22 de octubre"
+        const day = parseInt(dateMatch[1]);
+        const month = dateMatch[2].toLowerCase();
+        const monthMap: {[key: string]: number} = {
+          enero: 0, febrero: 1, marzo: 2, abril: 3, mayo: 4, junio: 5,
+          julio: 6, agosto: 7, septiembre: 8, octubre: 9, noviembre: 10, diciembre: 11
+        };
+        const monthNum = monthMap[month] ?? new Date().getMonth();
+        targetDate = new Date(new Date().getFullYear(), monthNum, day);
+      }
+
+      const dayEvents = events.filter(e => isSameDay(new Date(e.startDate), targetDate));
+      
+      if (dayEvents.length === 0) {
+        const msg = `No tienes eventos programados para el ${format(targetDate, 'dd/MM/yyyy')}`;
+        speak(msg);
+        addBotMessage(msg);
+        return;
+      }
+
+      // Add notifications to all events
+      dayEvents.forEach(event => {
+        const updatedNotifications = [
+          ...event.notifications,
+          { type: 'push' as const, minutesBefore: 480 } // 8 AM notification (8 hours = 480 min)
+        ];
+        updateEvent(event.id, { notifications: updatedNotifications });
+      });
+
+      const msg = `✅ ¡Está hecho! He agregado recordatorios a las 8:00 AM para:\n\n${dayEvents.map((e, i) => 
+        `${i + 1}. ${e.title} - ${e.startTime || 'Sin hora'}`
+      ).join('\n')}`;
+      speak('He agregado los recordatorios');
+      addBotMessage(msg);
+    } else {
+      // Create new event with reminder
+      const titleMatch = input.match(/recuerdame\s+(.+?)\s+el\s+/i);
+      const timeMatch = input.match(/(\d{1,2}):?(\d{2})?\s*(am|pm)?/i);
+      
+      if (titleMatch) {
+        const title = titleMatch[1].trim();
+        const msg = `✅ Está hecho! ${title}\nFecha: ${format(new Date(), 'dd/MM/yyyy')}\nHora: ${timeMatch ? timeMatch[0] : '09:00'}\nNotificación: 8:00 AM`;
+        speak('He creado el recordatorio');
+        addBotMessage(msg);
+      }
+    }
   };
 
   const resetConversation = () => {

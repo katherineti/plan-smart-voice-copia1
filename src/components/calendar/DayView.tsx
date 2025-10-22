@@ -1,6 +1,7 @@
 import { format, isSameDay } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS } from 'date-fns/locale';
 import { useEvents } from '@/contexts/EventsContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
 import EventDetailsDialog from './EventDetailsDialog';
 import type { CalendarEvent } from '@/types/event';
@@ -12,7 +13,10 @@ interface DayViewProps {
 
 const DayView = ({ selectedDate, onDateTimeClick }: DayViewProps) => {
   const { events } = useEvents();
+  const { language } = useLanguage();
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+
+  const locale = language === 'es' ? es : enUS;
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 

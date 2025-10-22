@@ -1,6 +1,7 @@
 import { startOfWeek, endOfWeek, eachDayOfInterval, format, isSameDay } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS } from 'date-fns/locale';
 import { useEvents } from '@/contexts/EventsContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
 import EventDetailsDialog from './EventDetailsDialog';
 import type { CalendarEvent } from '@/types/event';
@@ -12,10 +13,12 @@ interface WeekViewProps {
 
 const WeekView = ({ selectedDate, onDateTimeClick }: WeekViewProps) => {
   const { events } = useEvents();
+  const { language } = useLanguage();
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
-  const weekStart = startOfWeek(selectedDate, { locale: es });
-  const weekEnd = endOfWeek(selectedDate, { locale: es });
+  const locale = language === 'es' ? es : enUS;
+  const weekStart = startOfWeek(selectedDate, { locale });
+  const weekEnd = endOfWeek(selectedDate, { locale });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -30,7 +33,7 @@ const WeekView = ({ selectedDate, onDateTimeClick }: WeekViewProps) => {
         <div className="p-2"></div>
         {days.map(day => (
           <div key={day.toISOString()} className="p-2 text-center border-l">
-            <div className="text-sm font-medium">{format(day, 'EEE', { locale: es })}</div>
+            <div className="text-sm font-medium">{format(day, 'EEE', { locale })}</div>
             <div className={`text-lg ${isSameDay(day, new Date()) ? 'bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto' : ''}`}>
               {format(day, 'd')}
             </div>

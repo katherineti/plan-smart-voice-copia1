@@ -3,7 +3,8 @@ import CalendarHeader from '@/components/calendar/CalendarHeader';
 import MonthView from '@/components/calendar/MonthView';
 import WeekView from '@/components/calendar/WeekView';
 import DayView from '@/components/calendar/DayView';
-import VoiceButton from '@/components/voice/VoiceButton';
+import YearView from '@/components/calendar/YearView';
+import AgendaView from '@/components/calendar/AgendaView';
 import Chatbot from '@/components/chat/Chatbot';
 import EventForm from '@/components/calendar/EventForm';
 import EventDetailsDialog from '@/components/calendar/EventDetailsDialog';
@@ -11,7 +12,7 @@ import { useEvents } from '@/contexts/EventsContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import type { EventType } from '@/types/event';
 
-type View = 'month' | 'week' | 'day';
+type View = 'month' | 'week' | 'day' | 'year' | 'agenda';
 
 const Calendar = () => {
   const { events } = useEvents();
@@ -77,6 +78,8 @@ const Calendar = () => {
         {view === 'month' && <MonthView selectedDate={selectedDate} setSelectedDate={setSelectedDate} onDateClick={handleDateTimeClick} />}
         {view === 'week' && <WeekView selectedDate={selectedDate} onDateTimeClick={handleDateTimeClick} />}
         {view === 'day' && <DayView selectedDate={selectedDate} onDateTimeClick={handleDateTimeClick} />}
+        {view === 'year' && <YearView selectedDate={selectedDate} onDateClick={handleDateTimeClick} />}
+        {view === 'agenda' && <AgendaView onEventClick={handleEventSelect} />}
       </div>
       
 {/* se comento el boton de microfono*/}

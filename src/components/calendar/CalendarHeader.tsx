@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Plus, Search, Settings, Menu, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -11,18 +11,20 @@ import SearchDialog from './SearchDialog';
 import AddEventMenu from './AddEventMenu';
 
 interface CalendarHeaderProps {
-  view: 'month' | 'week' | 'day';
-  setView: (view: 'month' | 'week' | 'day') => void;
+  view: 'month' | 'week' | 'day' | 'year' | 'agenda';
+  setView: (view: 'month' | 'week' | 'day' | 'year' | 'agenda') => void;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
   onEventSelect?: (eventId: string) => void;
 }
 
 const CalendarHeader = ({ view, setView, selectedDate, setSelectedDate, onEventSelect }: CalendarHeaderProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const [showSearch, setShowSearch] = useState(false);
   const [showAddMenu, setShowAddMenu] = useState(false);
+  
+  const locale = language === 'es' ? es : enUS;
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(selectedDate);
@@ -84,7 +86,11 @@ const CalendarHeader = ({ view, setView, selectedDate, setSelectedDate, onEventS
             </Button>
             
             <h2 className="text-lg font-semibold min-w-[200px] text-center">
-              {format(selectedDate, view === 'day' ? 'EEEE, d MMMM yyyy' : 'MMMM yyyy', { locale: es })}
+              {view === 'agenda' 
+                ? t('agenda')
+                : view === 'year'
+                ? format(selectedDate, 'yyyy', { locale })
+                : format(selectedDate, view === 'day' ? 'EEEE, d MMMM yyyy' : 'MMMM yyyy', { locale })}
             </h2>
             
             <Button
@@ -106,14 +112,14 @@ const CalendarHeader = ({ view, setView, selectedDate, setSelectedDate, onEventS
           </Button>
         </div>
 
-        <div className="flex gap-2">
-          {(['month', 'week', 'day'] as const).map((v) => (
+        <div className="flex gap-2 overflow-x-auto">
+          {(['month', 'week', 'day', 'year', 'agenda'] as const).map((v) => (
             <Button
               key={v}
               variant={view === v ? 'default' : 'outline'}
               size="sm"
               onClick={() => setView(v)}
-              className="flex-1"
+              className="flex-1 min-w-[80px] whitespace-nowrap"
             >
               {t(v)}
             </Button>
