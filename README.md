@@ -1,4 +1,3 @@
-ANTES DE DESPLEGAR EN GITHUB, REVISAR EL ARCHIVO VITE.CONFIG.TS
 # Welcome to your Lovable project
 
 ## Project info
