@@ -31,7 +31,9 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
   const { events, updateEvent, addEvent } = useEvents();
   const [conversationState, setConversationState] = useState<{
     step: 'greeting' | 'type' | 'title' | 'date' | 'startTime' | 'endTime' | 'location' | 'complete' | 
-          'organize_day' | 'move_event_search' | 'move_event_confirm' | 'reminder_setup' | 'organize_week';
+          'organize_day' | 'move_event_search' | 'move_event_confirm' | 'reminder_setup' | 'organize_week' |
+          'edit_time_search' | 'edit_time_input' | 'edit_title_search' | 'edit_title_input' |
+          'edit_location_search' | 'edit_location_input' | 'ask_continue' | 'reminder_element' | 'reminder_time';
     type?: 'event' | 'task' | 'birthday';
     title?: string;
     date?: string;
@@ -41,6 +43,7 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
     targetDate?: string;
     foundEvent?: any;
     reminderDate?: string;
+    editField?: string;
   }>({ step: 'greeting' });
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -89,7 +92,9 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
         '• Ordenar tu día automáticamente\n' +
         '• Mover eventos a otras fechas\n' +
         '• Agregar recordatorios\n' +
-        '• Organizar tu semana\n\n' +
+        '• Organizar tu semana\n' +
+        '• Editar títulos, horas y ubicaciones\n' +
+        '• Ordenar alfabéticamente\n\n' +
         '¿Qué te gustaría hacer?';
       speak('¡Hola! Soy tu asistente de OronixOS.');
       addBotMessage(greeting);
@@ -113,9 +118,40 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
     setMessages(prev => [...prev, { role: 'user', content }]);
   };
 
+  const askToContinue = () => {
+    const msg = '¿Deseas realizar otra acción?';
+    speak(msg);
+    addBotMessage(msg);
+    setConversationState({ step: 'ask_continue' });
+  };
+
   const processUserInputWithState = (input: string) => {
     const currentState = conversationStateRef.current;
     const lowerInput = input.toLowerCase();
+
+    // Handle continue question
+    if (currentState.step === 'ask_continue') {
+      if (lowerInput.includes('si') || lowerInput.includes('sí')) {
+        const msg = '¿Qué te gustaría hacer?\n\n' +
+          '• Crear evento/tarea/cumpleaños\n' +
+          '• Ordenar día\n' +
+          '• Ordenar semana\n' +
+          '• Mover evento\n' +
+          '• Agregar recordatorio\n' +
+          '• Editar título/hora/ubicación\n' +
+          '• Ordenar alfabéticamente';
+        speak('¿Qué te gustaría hacer?');
+        addBotMessage(msg);
+        setConversationState({ step: 'greeting' });
+        return;
+      } else {
+        const msg = '¡Perfecto! Aquí estaré si me necesitas.';
+        speak(msg);
+        addBotMessage(msg);
+        setConversationState({ step: 'greeting' });
+        return;
+      }
+    }
 
     // Check for special commands first
     if (lowerInput.includes('ordenar') && (lowerInput.includes('día') || lowerInput.includes('dia'))) {
@@ -128,13 +164,55 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       return;
     }
 
+    if (lowerInput.includes('ordenar') && (lowerInput.includes('alfabético') || lowerInput.includes('alfabetico'))) {
+      handleAlphabeticalSort();
+      return;
+    }
+
     if (lowerInput.includes('mover') || lowerInput.includes('cambiar')) {
       handleMoveEvent(input);
       return;
     }
 
     if (lowerInput.includes('recuerda') || lowerInput.includes('recordatorio')) {
-      handleReminder(input);
+      if (currentState.step === 'reminder_element') {
+        handleReminderElement(input);
+        return;
+      } else if (currentState.step === 'reminder_time') {
+        handleReminderTime(input);
+        return;
+      } else {
+        handleReminder(input);
+        return;
+      }
+    }
+
+    if (lowerInput.includes('modificar') || lowerInput.includes('editar')) {
+      if (lowerInput.includes('hora')) {
+        handleEditTime(input);
+        return;
+      } else if (lowerInput.includes('titulo') || lowerInput.includes('título')) {
+        handleEditTitle(input);
+        return;
+      } else if (lowerInput.includes('ubicacion') || lowerInput.includes('ubicación')) {
+        handleEditLocation(input);
+        return;
+      }
+    }
+
+    // Handle edit flows
+    if (currentState.step === 'edit_time_input') {
+      handleEditTimeInput(input);
+      return;
+    }
+
+    if (currentState.step === 'edit_title_input') {
+      handleEditTitleInput(input);
+      return;
+    }
+
+    if (currentState.step === 'edit_location_input') {
+      handleEditLocationInput(input);
       return;
     }
 
@@ -165,7 +243,7 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
 
       case 'title':
         setConversationState({ ...currentState, step: 'date', title: input });
-        const msgDate = '¿Para qué fecha? Dime la fecha en formato día/mes/año o solo el día si es para este mes.';
+        const msgDate = '¿Para qué fecha? Dime la fecha en formato día/mes/año, "para el día 25", "para el 12", o solo el día si es para este mes.';
         speak(msgDate);
         addBotMessage(msgDate);
         break;
@@ -225,7 +303,6 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
 
         setTimeout(() => {
           const currentStateData = conversationStateRef.current;
-          // Parse date correctly to avoid timezone issues
           const [year, month, day] = currentStateData.date!.split('-').map(Number);
           const localDate = new Date(year, month - 1, day);
           
@@ -247,9 +324,19 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
 
   const parseDate = (input: string): string | null => {
     const today = new Date();
+    const lowerInput = input.toLowerCase();
     
-    // Buscar patrones de fecha
-    const dayMatch = input.match(/(\d{1,2})/);
+    // Handle "para el día X" or "para el X"
+    const dayOnlyMatch = lowerInput.match(/(?:para\s+el\s+(?:día|dia)\s+)?(\d{1,2})(?!\/)/) || 
+                         lowerInput.match(/para\s+el\s+(\d{1,2})/);
+    if (dayOnlyMatch) {
+      const day = parseInt(dayOnlyMatch[1]);
+      if (day >= 1 && day <= 31) {
+        return `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+      }
+    }
+
+    // Standard date patterns
     const fullDateMatch = input.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
     const shortDateMatch = input.match(/(\d{1,2})\/(\d{1,2})/);
 
@@ -257,16 +344,11 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       return `${fullDateMatch[3]}-${fullDateMatch[2].padStart(2, '0')}-${fullDateMatch[1].padStart(2, '0')}`;
     } else if (shortDateMatch) {
       return `${today.getFullYear()}-${shortDateMatch[2].padStart(2, '0')}-${shortDateMatch[1].padStart(2, '0')}`;
-    } else if (dayMatch) {
-      const day = parseInt(dayMatch[1]);
-      if (day >= 1 && day <= 31) {
-        return `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-      }
     }
 
-    if (input.toLowerCase().includes('hoy')) {
+    if (lowerInput.includes('hoy')) {
       return today.toISOString().split('T')[0];
-    } else if (input.toLowerCase().includes('mañana')) {
+    } else if (lowerInput.includes('mañana')) {
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
       return tomorrow.toISOString().split('T')[0];
@@ -296,6 +378,7 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       const msg = 'No tienes eventos programados para hoy.';
       speak(msg);
       addBotMessage(msg);
+      askToContinue();
       return;
     }
 
@@ -319,10 +402,10 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       const msg = 'No tienes eventos programados para esta semana.';
       speak(msg);
       addBotMessage(msg);
+      askToContinue();
       return;
     }
 
-    // Sort events by date and time
     const sorted = weekEvents.sort((a, b) => {
       const dateCompare = new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
       if (dateCompare !== 0) return dateCompare;
@@ -337,10 +420,20 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
     ).join('\n')}\n\n✅ Tu semana está organizada cronológicamente.`;
     speak('He organizado tu semana');
     addBotMessage(msg);
+    askToContinue();
+  };
+
+  const handleAlphabeticalSort = () => {
+    const sortedEvents = [...events].sort((a, b) => a.title.localeCompare(b.title));
+    const msg = `He ordenado alfabéticamente ${sortedEvents.length} elementos:\n\n${sortedEvents.slice(0, 10).map((e, i) => 
+      `${i + 1}. ${e.title} - ${format(new Date(e.startDate), 'dd/MM/yyyy')}`
+    ).join('\n')}\n\n✅ Calendario ordenado alfabéticamente.`;
+    speak('He ordenado los eventos alfabéticamente');
+    addBotMessage(msg);
+    askToContinue();
   };
 
   const handleMoveEvent = (input: string) => {
-    // Extract event title
     const titleMatch = input.match(/(?:evento|tarea|cumpleaños)[:\s]+['"]?([^'"]+?)['"]?\s+(?:a|al|para)/i) ||
                       input.match(/['"]([^'"]+)['"]\s+(?:a|al|para)/);
     
@@ -363,7 +456,6 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       return;
     }
 
-    // Extract target date
     let targetDate: Date | null = null;
     
     if (input.toLowerCase().includes('mañana')) {
@@ -372,7 +464,6 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       const dateMatch = input.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})|dia\s+(\d{1,2})/i);
       if (dateMatch) {
         if (dateMatch[4]) {
-          // Day of current month
           const today = new Date();
           targetDate = new Date(today.getFullYear(), today.getMonth(), parseInt(dateMatch[4]));
         } else if (dateMatch[1] && dateMatch[2] && dateMatch[3]) {
@@ -388,7 +479,6 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       return;
     }
 
-    // Update event
     updateEvent(foundEvent.id, { startDate: targetDate, endDate: targetDate });
     
     const msg = `✅ ¡Hecho! He movido:\n\n` +
@@ -398,10 +488,10 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
                 `📅 Nueva fecha: ${format(targetDate, 'dd/MM/yyyy')}`;
     speak('He movido el evento exitosamente');
     addBotMessage(msg);
+    askToContinue();
   };
 
   const handleReminder = (input: string) => {
-    // Check if asking for reminders on a specific date
     const dateMatch = input.match(/(\d{1,2})\s+de\s+(\w+)|(\d{1,2})\/(\d{1,2})\/(\d{4})/i);
     
     if (dateMatch) {
@@ -410,7 +500,6 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       if (dateMatch[3] && dateMatch[4] && dateMatch[5]) {
         targetDate = new Date(parseInt(dateMatch[5]), parseInt(dateMatch[4]) - 1, parseInt(dateMatch[3]));
       } else {
-        // Parse "22 de octubre"
         const day = parseInt(dateMatch[1]);
         const month = dateMatch[2].toLowerCase();
         const monthMap: {[key: string]: number} = {
@@ -427,14 +516,14 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
         const msg = `No tienes eventos programados para el ${format(targetDate, 'dd/MM/yyyy')}`;
         speak(msg);
         addBotMessage(msg);
+        askToContinue();
         return;
       }
 
-      // Add notifications to all events
       dayEvents.forEach(event => {
         const updatedNotifications = [
           ...event.notifications,
-          { type: 'push' as const, minutesBefore: 480 } // 8 AM notification (8 hours = 480 min)
+          { type: 'push' as const, minutesBefore: 480 }
         ];
         updateEvent(event.id, { notifications: updatedNotifications });
       });
@@ -444,18 +533,231 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       ).join('\n')}`;
       speak('He agregado los recordatorios');
       addBotMessage(msg);
+      askToContinue();
     } else {
-      // Create new event with reminder
-      const titleMatch = input.match(/recuerdame\s+(.+?)\s+el\s+/i);
-      const timeMatch = input.match(/(\d{1,2}):?(\d{2})?\s*(am|pm)?/i);
-      
-      if (titleMatch) {
-        const title = titleMatch[1].trim();
-        const msg = `✅ Está hecho! ${title}\nFecha: ${format(new Date(), 'dd/MM/yyyy')}\nHora: ${timeMatch ? timeMatch[0] : '09:00'}\nNotificación: 8:00 AM`;
-        speak('He creado el recordatorio');
-        addBotMessage(msg);
-      }
+      const msg = '¿Para qué elemento deseas agregar el recordatorio? Dime el título.';
+      speak(msg);
+      addBotMessage(msg);
+      setConversationState({ step: 'reminder_element' });
     }
+  };
+
+  const handleReminderElement = (input: string) => {
+    const foundEvent = events.find(e => 
+      e.title.toLowerCase().includes(input.toLowerCase())
+    );
+
+    if (!foundEvent) {
+      const msg = `No encontré ningún elemento con el título "${input}". ¿Puedes verificar el nombre?`;
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const currentNotification = foundEvent.notifications.length > 0 
+      ? `${foundEvent.notifications[0].minutesBefore} minutos antes`
+      : 'Sin recordatorio';
+
+    const msg = `Encontré:\n\n` +
+                `📌 ${foundEvent.title}\n` +
+                `📅 Fecha: ${format(new Date(foundEvent.startDate), 'dd/MM/yyyy')}\n` +
+                `🔔 Recordatorio actual: ${currentNotification}\n\n` +
+                `¿A cuántos minutos antes deseas el recordatorio? (ejemplo: 5, 30, 60)`;
+    speak('Encontré el elemento');
+    addBotMessage(msg);
+    setConversationState({ step: 'reminder_time', foundEvent });
+  };
+
+  const handleReminderTime = (input: string) => {
+    const minutes = parseInt(input);
+    if (isNaN(minutes) || minutes < 0) {
+      const msg = 'Por favor, dime un número válido de minutos.';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const currentState = conversationStateRef.current;
+    const event = currentState.foundEvent;
+    
+    if (!event) return;
+
+    const updatedNotifications = [
+      { type: 'push' as const, minutesBefore: minutes }
+    ];
+    updateEvent(event.id, { notifications: updatedNotifications });
+
+    const msg = `✅ ¡Está hecho! Se ha agregado la notificación:\n\n` +
+                `📌 ${event.title}\n` +
+                `📅 Fecha: ${format(new Date(event.startDate), 'dd/MM/yyyy')}\n` +
+                `⏰ Hora: ${event.startTime || 'Sin hora'}\n` +
+                `🔔 Recordatorio: ${minutes} minutos antes`;
+    speak('He agregado el recordatorio');
+    addBotMessage(msg);
+    askToContinue();
+  };
+
+  const handleEditTime = (input: string) => {
+    const titleMatch = input.match(/(?:hora\s+del?|hora\s+de\s+la?)\s+(.+?)(?:\s+a\s+|\s*$)/i);
+    
+    if (!titleMatch) {
+      const msg = 'No pude identificar el evento. Por favor, dime: "Modificar hora del [nombre del evento]"';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const title = titleMatch[1].trim();
+    const foundEvent = events.find(e => 
+      e.title.toLowerCase().includes(title.toLowerCase())
+    );
+
+    if (!foundEvent) {
+      const msg = `No encontré ningún elemento con "${title}". ¿Puedes verificar el nombre?`;
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const msg = `Encontré:\n\n` +
+                `📌 ${foundEvent.title}\n` +
+                `🏷️ Tipo: ${foundEvent.type}\n` +
+                `📅 Fecha: ${format(new Date(foundEvent.startDate), 'dd/MM/yyyy')}\n` +
+                `⏰ Hora actual: ${foundEvent.startTime || 'Sin hora'}\n\n` +
+                `¿A qué hora deseas el elemento? (ejemplo: 14:30)`;
+    speak('Encontré el elemento');
+    addBotMessage(msg);
+    setConversationState({ step: 'edit_time_input', foundEvent });
+  };
+
+  const handleEditTimeInput = (input: string) => {
+    const newTime = parseTime(input);
+    if (!newTime) {
+      const msg = 'No entendí la hora. Por favor, dímela de nuevo en formato HH:MM';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const currentState = conversationStateRef.current;
+    const event = currentState.foundEvent;
+    
+    if (!event) return;
+
+    updateEvent(event.id, { startTime: newTime });
+
+    const msg = `✅ ¡Hecho! He modificado:\n\n` +
+                `📌 ${event.title}\n` +
+                `🏷️ Tipo: ${event.type}\n` +
+                `📅 Fecha: ${format(new Date(event.startDate), 'dd/MM/yyyy')}\n` +
+                `⏰ Nueva hora: ${newTime}`;
+    speak('He modificado la hora');
+    addBotMessage(msg);
+    askToContinue();
+  };
+
+  const handleEditTitle = (input: string) => {
+    const titleMatch = input.match(/(?:título|titulo)\s+(?:del?|de\s+la?)\s+(.+?)(?:\s*$)/i);
+    
+    if (!titleMatch) {
+      const msg = 'No pude identificar el evento. Por favor, dime: "Modificar título del [nombre del evento]"';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const title = titleMatch[1].trim();
+    const foundEvent = events.find(e => 
+      e.title.toLowerCase().includes(title.toLowerCase())
+    );
+
+    if (!foundEvent) {
+      const msg = `No encontré ningún elemento con "${title}". ¿Puedes verificar el nombre?`;
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const msg = `Encontré:\n\n` +
+                `📌 ${foundEvent.title}\n` +
+                `🏷️ Tipo: ${foundEvent.type}\n` +
+                `📅 Fecha: ${format(new Date(foundEvent.startDate), 'dd/MM/yyyy')}\n` +
+                `⏰ Hora: ${foundEvent.startTime || 'Sin hora'}\n\n` +
+                `¿Qué título deseas agregarle?`;
+    speak('Encontré el elemento');
+    addBotMessage(msg);
+    setConversationState({ step: 'edit_title_input', foundEvent });
+  };
+
+  const handleEditTitleInput = (input: string) => {
+    const currentState = conversationStateRef.current;
+    const event = currentState.foundEvent;
+    
+    if (!event) return;
+
+    updateEvent(event.id, { title: input });
+
+    const msg = `✅ ¡Hecho! He modificado:\n\n` +
+                `📌 Nuevo título: ${input}\n` +
+                `🏷️ Tipo: ${event.type}\n` +
+                `📅 Fecha: ${format(new Date(event.startDate), 'dd/MM/yyyy')}\n` +
+                `⏰ Hora: ${event.startTime || 'Sin hora'}`;
+    speak('He modificado el título');
+    addBotMessage(msg);
+    askToContinue();
+  };
+
+  const handleEditLocation = (input: string) => {
+    const titleMatch = input.match(/(?:ubicación|ubicacion)\s+(?:del?|de\s+la?)\s+(.+?)(?:\s*$)/i);
+    
+    if (!titleMatch) {
+      const msg = 'No pude identificar el evento. Por favor, dime: "Modificar ubicación del [nombre del evento]"';
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const title = titleMatch[1].trim();
+    const foundEvent = events.find(e => 
+      e.title.toLowerCase().includes(title.toLowerCase())
+    );
+
+    if (!foundEvent) {
+      const msg = `No encontré ningún elemento con "${title}". ¿Puedes verificar el nombre?`;
+      speak(msg);
+      addBotMessage(msg);
+      return;
+    }
+
+    const msg = `Encontré:\n\n` +
+                `📌 ${foundEvent.title}\n` +
+                `🏷️ Tipo: ${foundEvent.type}\n` +
+                `📅 Fecha: ${format(new Date(foundEvent.startDate), 'dd/MM/yyyy')}\n` +
+                `⏰ Hora: ${foundEvent.startTime || 'Sin hora'}\n` +
+                `📍 Ubicación actual: ${foundEvent.location || 'Sin ubicación'}\n\n` +
+                `¿Qué ubicación deseas agregar al elemento?`;
+    speak('Encontré el elemento');
+    addBotMessage(msg);
+    setConversationState({ step: 'edit_location_input', foundEvent });
+  };
+
+  const handleEditLocationInput = (input: string) => {
+    const currentState = conversationStateRef.current;
+    const event = currentState.foundEvent;
+    
+    if (!event) return;
+
+    updateEvent(event.id, { location: input });
+
+    const msg = `✅ ¡Hecho! He modificado:\n\n` +
+                `📌 ${event.title}\n` +
+                `🏷️ Tipo: ${event.type}\n` +
+                `📅 Fecha: ${format(new Date(event.startDate), 'dd/MM/yyyy')}\n` +
+                `⏰ Hora: ${event.startTime || 'Sin hora'}\n` +
+                `📍 Nueva ubicación: ${input}`;
+    speak('He modificado la ubicación');
+    addBotMessage(msg);
+    askToContinue();
   };
 
   const resetConversation = () => {
@@ -507,15 +809,15 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
         <Button
           onClick={() => setIsOpen(true)}
           size="lg"
-          className="fixed bottom-24 right-8 rounded-full w-16 h-16 shadow-lg"
+          className="fixed bottom-24 right-8 rounded-full w-16 h-16 shadow-lg glow-effect"
         >
           <MessageCircle className="h-6 w-6" />
         </Button>
       )}
 
       {isOpen && (
-        <div className="fixed bottom-8 right-8 w-96 h-[600px] bg-background border rounded-lg shadow-xl flex flex-col">
-          <div className="p-4 border-b flex items-center justify-between bg-primary text-primary-foreground">
+        <div className="fixed bottom-8 right-8 w-96 h-[600px] glass-effect rounded-lg shadow-xl flex flex-col">
+          <div className="p-4 border-b flex items-center justify-between bg-gradient-to-r from-primary to-accent text-white rounded-t-lg">
             <h3 className="font-semibold">Asistente OronixOS</h3>
             <Button
               variant="ghost"
@@ -524,7 +826,7 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
                 setIsOpen(false);
                 resetConversation();
               }}
-              className="text-primary-foreground hover:bg-primary-foreground/20"
+              className="text-white hover:bg-white/20"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -537,7 +839,7 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
+                  className={`max-w-[80%] p-3 rounded-lg whitespace-pre-line ${
                     msg.role === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted'

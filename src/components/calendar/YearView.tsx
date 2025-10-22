@@ -6,9 +6,10 @@ import { isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, format, getDay 
 interface YearViewProps {
   selectedDate: Date;
   onDateClick?: (date: Date) => void;
+  onYearChange?: (date: Date) => void;
 }
 
-const YearView = ({ selectedDate, onDateClick }: YearViewProps) => {
+const YearView = ({ selectedDate, onDateClick, onYearChange }: YearViewProps) => {
   const { t, language } = useLanguage();
   const { events } = useEvents();
   const year = selectedDate.getFullYear();

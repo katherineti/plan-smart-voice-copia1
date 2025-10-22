@@ -28,10 +28,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    
+    // Check for Google OAuth callback
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      signInWithGoogle();
+    }
+    
     setIsLoading(false);
   }, []);
 
   const signInWithGoogle = async () => {
+    // Extract token from URL hash if present
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get('access_token');
+      
+      if (accessToken) {
+        try {
+          const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          const userData = await response.json();
+          
+          const googleUser: User = {
+            id: userData.id,
+            email: userData.email,
+            name: userData.name,
+            picture: userData.picture
+          };
+          
+          setUser(googleUser);
+          localStorage.setItem('user', JSON.stringify(googleUser));
+          window.history.replaceState({}, document.title, '/calendar');
+          return;
+        } catch (error) {
+          console.error('Error fetching Google user data:', error);
+        }
+      }
+    }
+    
+    // Fallback mock user
     const mockUser: User = {
       id: Date.now().toString(),
       email: 'user@gmail.com',

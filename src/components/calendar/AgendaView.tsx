@@ -1,27 +1,61 @@
+import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useEvents } from '@/contexts/EventsContext';
 import { format, isAfter, startOfDay } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
-import { Calendar, Clock, MapPin, Tag } from 'lucide-react';
+import { Calendar, Clock, MapPin, Tag, SortAsc } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface AgendaViewProps {
   onEventClick?: (eventId: string) => void;
 }
 
+type SortOption = 'date' | 'alphabetical' | 'recent' | 'title-asc' | 'title-desc';
+
 const AgendaView = ({ onEventClick }: AgendaViewProps) => {
   const { t, language } = useLanguage();
   const { events } = useEvents();
+  const [sortOption, setSortOption] = useState<SortOption>('date');
 
   const locale = language === 'es' ? es : enUS;
   const today = startOfDay(new Date());
 
   // Filter and sort upcoming events
-  const upcomingEvents = events
+  let upcomingEvents = events
     .filter(event => isAfter(new Date(event.startDate), today) || 
-      format(new Date(event.startDate), 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd'))
-    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+      format(new Date(event.startDate), 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd'));
+
+  // Apply sorting
+  switch (sortOption) {
+    case 'alphabetical':
+      upcomingEvents = [...upcomingEvents].sort((a, b) => a.title.localeCompare(b.title));
+      break;
+    case 'title-asc':
+      upcomingEvents = [...upcomingEvents].sort((a, b) => a.title.localeCompare(b.title));
+      break;
+    case 'title-desc':
+      upcomingEvents = [...upcomingEvents].sort((a, b) => b.title.localeCompare(a.title));
+      break;
+    case 'recent':
+      upcomingEvents = [...upcomingEvents]
+        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        .slice(0, 10);
+      break;
+    case 'date':
+    default:
+      upcomingEvents = [...upcomingEvents].sort((a, b) => 
+        new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      );
+  }
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
@@ -51,9 +85,24 @@ const AgendaView = ({ onEventClick }: AgendaViewProps) => {
   return (
     <div className="h-full overflow-auto p-6 bg-gradient-to-br from-background to-secondary/20">
       <div className="max-w-4xl mx-auto space-y-6">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          {t('upcomingEvents')}
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            {t('upcomingEvents')}
+          </h2>
+          <Select value={sortOption} onValueChange={(value: SortOption) => setSortOption(value)}>
+            <SelectTrigger className="w-[200px]">
+              <SortAsc className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date">{language === 'es' ? 'Por fecha' : 'By date'}</SelectItem>
+              <SelectItem value="alphabetical">{language === 'es' ? 'Alfabético' : 'Alphabetical'}</SelectItem>
+              <SelectItem value="title-asc">{language === 'es' ? 'Título (A-Z)' : 'Title (A-Z)'}</SelectItem>
+              <SelectItem value="title-desc">{language === 'es' ? 'Título (Z-A)' : 'Title (Z-A)'}</SelectItem>
+              <SelectItem value="recent">{language === 'es' ? 'Últimos 10' : 'Last 10'}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="space-y-3">
           {upcomingEvents.map((event) => {
             const eventDate = new Date(event.startDate);

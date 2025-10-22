@@ -69,8 +69,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
-      <div className="w-full max-w-md p-8 space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a237e] via-[#0d47a1] to-[#4a148c] relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+      <div className="w-full max-w-md p-8 space-y-6 glass-effect rounded-2xl z-10">
         <div className="flex justify-center mb-6">
           <div className="relative">
             <Mountain className="h-20 w-20 text-primary" />
@@ -152,9 +153,12 @@ const Login = () => {
         </div>
 
         <Button 
-          onClick={signInWithGoogle}
+          onClick={() => {
+            const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=331740833241-dcatejrha9638tluv83a66p4ds5vpveh.apps.googleusercontent.com&redirect_uri=${window.location.origin}/calendar&response_type=token&scope=email%20profile`;
+            window.location.href = googleAuthUrl;
+          }}
           variant="outline"
-          className="w-full gap-2"
+          className="w-full gap-2 hover:bg-primary/10"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

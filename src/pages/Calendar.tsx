@@ -78,7 +78,13 @@ const Calendar = () => {
         {view === 'month' && <MonthView selectedDate={selectedDate} setSelectedDate={setSelectedDate} onDateClick={handleDateTimeClick} />}
         {view === 'week' && <WeekView selectedDate={selectedDate} onDateTimeClick={handleDateTimeClick} />}
         {view === 'day' && <DayView selectedDate={selectedDate} onDateTimeClick={handleDateTimeClick} />}
-        {view === 'year' && <YearView selectedDate={selectedDate} onDateClick={handleDateTimeClick} />}
+        {view === 'year' && (
+          <YearView 
+            selectedDate={selectedDate} 
+            onDateClick={handleDateTimeClick}
+            onYearChange={setSelectedDate}
+          />
+        )}
         {view === 'agenda' && <AgendaView onEventClick={handleEventSelect} />}
       </div>
       
