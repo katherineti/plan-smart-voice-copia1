@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar, Mountain } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { BASE_PATH } from "./../../const";
 
 const Login = () => {
   const { user, signInWithGoogle, signIn, signUp } = useAuth();
@@ -72,12 +73,18 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a237e] via-[#0d47a1] to-[#4a148c] relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
       <div className="w-full max-w-md p-8 space-y-6 glass-effect rounded-2xl z-10">
-        <div className="flex justify-center mb-6">
+        {/* <div className="flex justify-center mb-6">
           <div className="relative">
             <Mountain className="h-20 w-20 text-primary" />
-            {/* <img src='/public/favicon.ico' alt='logo' className='h-10 w-10 text-secondary absolute -bottom-2 -right-2' /> */}
+            {/* <img src='/public/favicon.ico' alt='logo' className='h-10 w-10 text-secondary absolute -bottom-2 -right-2' /> * /}
             <Calendar className="h-10 w-10 text-secondary absolute -bottom-2 -right-2" />
-            {/* <img src='/public/favicon.ico' alt='logo' className='h-10 w-10 text-secondary absolute -bottom-2 -right-2' /> */}
+            {/* <img src='/public/favicon.ico' alt='logo' className='h-10 w-10 text-secondary absolute -bottom-2 -right-2' /> * /}
+          </div>
+        </div> */}
+        {/* IMAGEN ACTUALIZADA*/}
+        <div className="flex justify-center mb-6">
+          <div className="relative p-2">
+            <img src={`${BASE_PATH}favicon.ico`} alt='logo' className='h-24 w-24 rounded-xl shadow-inner' />
           </div>
         </div>
         
@@ -143,15 +150,15 @@ const Login = () => {
           </Button>
         </form>
 
-        <div className="relative">
+{/*         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">O continúa con</span>
           </div>
-        </div>
-
+        </div> */}
+{/* 
         <Button 
           onClick={() => {
             const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=331740833241-dcatejrha9638tluv83a66p4ds5vpveh.apps.googleusercontent.com&redirect_uri=${window.location.origin}/calendar&response_type=token&scope=email%20profile`;
@@ -168,7 +175,7 @@ const Login = () => {
           </svg>
           Google
         </Button>
-
+*/}
         <p className="text-center text-sm text-muted-foreground">
           {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
           <button

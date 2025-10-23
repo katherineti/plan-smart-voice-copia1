@@ -87,7 +87,7 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      const greeting = '¡Hola! Soy tu asistente de OronixOS. Puedo ayudarte a:\n\n' +
+/*       const greeting = '¡Hola! Soy tu asistente de OronixOS. Puedo ayudarte a:\n\n' +
         '• Crear eventos, tareas o cumpleaños\n' +
         '• Ordenar tu día automáticamente\n' +
         '• Mover eventos a otras fechas\n' +
@@ -95,8 +95,12 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
         '• Organizar tu semana\n' +
         '• Editar títulos, horas y ubicaciones\n' +
         '• Ordenar alfabéticamente\n\n' +
+        '¿Qué te gustaría hacer?'; */
+      const greeting = '¡Hola! Soy tu asistente de OronixOS. Puedo ayudarte a:\n\n' +
+        '• Crear eventos, tareas o cumpleaños\n' +
+        // '• Mover eventos a otras fechas\n' +
         '¿Qué te gustaría hacer?';
-      speak('¡Hola! Soy tu asistente de OronixOS.');
+      speak('¡Hola! Soy tu asistente de OronixOS. En que puedo ayudarte?');
       addBotMessage(greeting);
     }
   }, [isOpen]);
@@ -134,12 +138,12 @@ const Chatbot = ({ onEventDataCollected }: ChatbotProps) => {
       if (lowerInput.includes('si') || lowerInput.includes('sí')) {
         const msg = '¿Qué te gustaría hacer?\n\n' +
           '• Crear evento/tarea/cumpleaños\n' +
-          '• Ordenar día\n' +
-          '• Ordenar semana\n' +
-          '• Mover evento\n' +
-          '• Agregar recordatorio\n' +
-          '• Editar título/hora/ubicación\n' +
-          '• Ordenar alfabéticamente';
+          // '• Ordenar día\n' +
+          // '• Ordenar semana\n' +
+          // '• Mover evento\n' +
+          // '• Agregar recordatorio\n' +
+          // '• Editar título/hora/ubicación\n' +
+          // '• Ordenar alfabéticamente';
         speak('¿Qué te gustaría hacer?');
         addBotMessage(msg);
         setConversationState({ step: 'greeting' });

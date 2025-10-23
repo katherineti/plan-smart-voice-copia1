@@ -10,6 +10,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Login from "./pages/Login";
 import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
+import { BASE_PATH } from "./../const";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename={BASE_PATH}>
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
