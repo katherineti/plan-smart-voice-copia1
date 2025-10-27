@@ -10,6 +10,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Login from "./pages/Login";
 import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
+import './firebase/clientFirebase.config'
 
 const queryClient = new QueryClient();
 
