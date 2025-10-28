@@ -1,7 +1,7 @@
-// conexion firebase.ts al proyecto oronixos-1915d
+//Conexion al proyecto oronixos-1915d
 import { initializeApp } from 'firebase/app';
 import { getAnalytics, isSupported } from 'firebase/analytics'; // 💡 Nuevo: Importación de Analytics
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence, getAuth as firebaseGetAuth  } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 // 1. Obtener la configuración de las variables de entorno de Vite
@@ -23,14 +23,15 @@ if (!firebaseConfig.apiKey) {
 
 // 2. Inicializar la aplicación de Firebase
 const app = initializeApp(firebaseConfig);
-// const analytics = getAnalytics(app);
 console.log("firebase - app " , app)
+
 // 3. Obtener instancias de los servicios que probablemente necesitarás
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // 4. Inicializar Firebase Analytics
 let analytics: any;
+
 // Firebase recomienda comprobar si el entorno es compatible (p. ej., no Server-Side Rendering)
 isSupported().then(supported => {
     if (supported && firebaseConfig.measurementId) {
@@ -42,6 +43,15 @@ isSupported().then(supported => {
         console.warn("measurementId no encontrado. Analytics no inicializado.");
     }
 });
+
+// Opcional: Configurar persistencia para que la sesión de usuario se mantenga (comportamiento por defecto es 'local', pero es bueno forzarlo si se necesita)
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Persistencia de autenticación de Firebase configurada.");
+  })
+  .catch((error) => {
+    console.error("Error al configurar la persistencia de autenticación:", error);
+  });
 
 // Puedes exportar la app si necesitas otros servicios después
 export default app;

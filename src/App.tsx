@@ -31,21 +31,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
+      <Toaster /> 
+      <Sonner /> 
       <BrowserRouter>
         <ThemeProvider>
           <LanguageProvider>
+            {/* El AuthProvider debe ser el componente más externo que maneja el estado de la sesión */}
             <AuthProvider>
               <EventsProvider>
                 <Routes>
+                  {/* Ruta de Login */}
                   <Route path="/login" element={<Login />} />
+                  
+                  {/* Rutas Protegidas */}
                   <Route path="/calendar" element={
                     <ProtectedRoute>
                       <Calendar />
                     </ProtectedRoute>
                   } />
+                  
+                  {/* Ruta Raíz: Redirige por defecto */}
                   <Route path="/" element={<Navigate to="/calendar" />} />
+                  
+                  {/* Ruta 404 */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </EventsProvider>
