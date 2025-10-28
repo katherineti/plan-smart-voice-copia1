@@ -42,6 +42,7 @@ const Login = () => {
   };
 
   const parseFirebaseError = (error: any): string => {
+    console.log("error?.code: " , error?.code)
     if (error?.code) {
         switch (error.code) {
             case 'auth/invalid-email':
@@ -51,10 +52,14 @@ const Login = () => {
             case 'auth/user-not-found':
             case 'auth/wrong-password':
                 return 'Credenciales inválidas.';
+            case 'auth/invalid-credential':
+                return 'Credenciales inválidas.';
             case 'auth/email-already-in-use':
                 return 'El correo ya está registrado.';
             case 'auth/weak-password':
                 return 'La contraseña debe tener al menos 6 caracteres.';
+            case 'auth/too-many-requests':
+                return 'Demasiadas solicitudes de autenticación. Debe esperar 15min para volver a intentar';
             default:
                 return 'Error desconocido. Inténtalo de nuevo.';
         }
@@ -97,6 +102,7 @@ const Login = () => {
     } catch (error) {
         success = false;
         title = "Error de Autenticación";
+        console.log("error" , error)
         description = parseFirebaseError(error);
     } finally {
         setIsSubmitting(false);
@@ -208,7 +214,7 @@ const Login = () => {
             </div>
           )}
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" onClick={handleSubmit}>
             {isSignUp ? 'Registrarse' : 'Iniciar sesión'}
           </Button>
         </form>
