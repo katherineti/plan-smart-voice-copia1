@@ -18,6 +18,7 @@ interface User {
   email: string | null;
   name: string | null;
   picture?: string | null;
+  emailVerified: boolean;
 }
 
 // Definición de Interfaz del Contexto
@@ -45,12 +46,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mapea el objeto User de Firebase a tu interfaz local
+  // Mapea el objeto User de Firebase a tu interfaz local: Obtiene el perfil de un usuario
   const mapFirebaseUser = (firebaseUser: FirebaseUser): User => ({
     id: firebaseUser.uid,
     email: firebaseUser.email,
     name: firebaseUser.displayName,
-    picture: firebaseUser.photoURL
+    picture: firebaseUser.photoURL,
+    emailVerified: firebaseUser.emailVerified,
   });
 
   // --- Listener Principal de Firebase Auth (Gestión de Persistencia) ---
@@ -78,11 +80,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
     
-    // 2. Configurar el listener de estado de autenticación (siempre debe ir)
+    // 2. Configurar el listener de estado de autenticación: Obtiene el usuario con sesión activa
     // Esto captura el estado inicial y cualquier cambio posterior (incluyendo el resultado de la redirección)
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (!isMounted) return;
-
+      console.log("firebaseUser ",firebaseUser)
       if (firebaseUser) {
         const mappedUser = mapFirebaseUser(firebaseUser);
         setUser(mappedUser);

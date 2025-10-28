@@ -1,7 +1,7 @@
 //Conexion al proyecto oronixos-1915d
 import { initializeApp } from 'firebase/app';
 import { getAnalytics, isSupported } from 'firebase/analytics'; // 💡 Nuevo: Importación de Analytics
-import { getAuth, setPersistence, browserLocalPersistence, getAuth as firebaseGetAuth  } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence, getAuth as firebaseGetAuth, onAuthStateChanged  } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 // 1. Obtener la configuración de las variables de entorno de Vite
@@ -52,6 +52,16 @@ setPersistence(auth, browserLocalPersistence)
   .catch((error) => {
     console.error("Error al configurar la persistencia de autenticación:", error);
   });
+
+//escuchador de las sesiones de usuario en la aplicacion, y para que funcione se necesita un estado de react para guardar el usuario: useUser.tsx (no se esta usando)
+export const onChangeUser= (setUsuario) => {
+  const auth = getAuth(app);
+  onAuthStateChanged(auth, (user) => {
+    const usuario = user? user.displayName: null
+    setUsuario(usuario)
+});
+} 
+
 
 // Puedes exportar la app si necesitas otros servicios después
 export default app;

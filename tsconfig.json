@@ -11,6 +11,11 @@
     "skipLibCheck": true,
     "allowJs": true,
     "noUnusedLocals": false,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler", // Or "node" for older setups
+    "jsx": "react-jsx",
   }
 }
