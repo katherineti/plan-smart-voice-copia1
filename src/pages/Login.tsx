@@ -181,7 +181,8 @@ const Login = () => {
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 w-fit">
                 <Sparkles className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-medium text-purple-300">Asistente de voz inteligente</span>
+                <span className="text-sm font-medium text-purple-300">Agenda con nosotros</span>
+                {/* <span className="text-sm font-medium text-purple-300">Asistente de voz inteligente</span> */}
               </div>
 
               <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -195,20 +196,24 @@ const Login = () => {
               </p>
             </div>
 
-            <div className="space-y-4">
-              {[
-                { icon: "🎤", text: "Comandos por voz" },
-                { icon: "📢", text: "Escucha a tu asistente" },
-                { icon: "📅", text: "Múltiples calendarios" },
-                // { icon: "⚡", text: "Organización automática" },
-                { icon: "🔔", text: "Recordatorios personalizados" },
-              ].map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors">
-                  <span className="text-2xl">{feature.icon}</span>
-                  <span className="font-medium">{feature.text}</span>
-                </div>
-              ))}
-            </div>
+            {/* <div className="space-y-4">
+                <ul className="space-y-3 list-disc list-inside text-gray-300">
+                    {[
+                    { text: "Comandos por voz" },
+                    { text: "Escucha a tu asistente" },
+                    { text: "Múltiples calendarios" },
+                    { text: "Recordatorios personalizados" },
+                    ].map((feature, idx) => (
+                    <li 
+                        key={idx} 
+                        className="flex items-center gap-2 hover:text-white transition-colors"
+                    >
+                        <span className="font-medium">{feature.text}</span>
+                    </li>
+                    ))}
+                </ul>
+            </div> */}
+
           </div>
 
           <div className="w-full max-w-md mx-auto lg:mx-0">
