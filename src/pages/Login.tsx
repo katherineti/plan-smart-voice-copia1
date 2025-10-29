@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Calendar, Loader2, Mountain } from 'lucide-react';
+import { ArrowRight, Calendar, Loader2, Mail, Mountain, Sparkles, User, Lock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const Login = () => {
@@ -146,87 +146,174 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a237e] via-[#0d47a1] to-[#4a148c] relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-      <div className="w-full max-w-md p-8 space-y-6 glass-effect rounded-2xl z-10">
-        <div className="flex justify-center mb-6">
-          <div className="relative p-2">
-            <img src='/public/favicon.ico' alt='logo' className='h-24 w-24 rounded-xl shadow-inner' />   
-          </div>
-        </div>
-        
-        <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          OronixOS
-        </h1>
-        
-        <p className="text-center text-muted-foreground">
-          {isSignUp ? 'Crea tu cuenta' : 'Inicia sesión en tu cuenta'}
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden flex items-center justify-center">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        ></div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp && (
-            <div className="space-y-2">
-              <Label htmlFor="name">Nombre</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Nombre y Apellido"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40"></div>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="hidden lg:flex flex-col justify-center space-y-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 w-fit">
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                <span className="text-sm font-medium text-purple-300">Asistente de voz inteligente</span>
+              </div>
+
+              <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                OronixOS
+                </span>
+              </h1>
+
+              <p className="text-lg text-gray-300 leading-relaxed max-w-lg">
+                Organiza tu calendario con comandos de voz. Agenda eventos, tareas y festividades automáticamente.
+              </p>
             </div>
-          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Correo electrónico</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="ejemplo@gmail.com"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input
-              id="password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
-            />
-          </div>
-
-          {isSignUp && (
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                required
-              />
+            <div className="space-y-4">
+              {[
+                { icon: "🎤", text: "Comandos por voz" },
+                { icon: "📢", text: "Escucha a tu asistente" },
+                { icon: "📅", text: "Múltiples calendarios" },
+                // { icon: "⚡", text: "Organización automática" },
+                { icon: "🔔", text: "Recordatorios personalizados" },
+              ].map((feature, idx) => (
+                <div key={idx} className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors">
+                  <span className="text-2xl">{feature.icon}</span>
+                  <span className="font-medium">{feature.text}</span>
+                </div>
+              ))}
             </div>
-          )}
-
-          <Button type="submit" className="w-full" onClick={handleSubmit}>
-            {isSignUp ? 'Registrarse' : 'Iniciar sesión'}
-          </Button>
-        </form>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">O continúa con</span>
-          </div>
-        </div>
+
+          <div className="w-full max-w-md mx-auto lg:mx-0">
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+
+              <div className="relative bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl p-8 space-y-6">
+                <div className="space-y-2 text-center">
+                  <div className="flex justify-center mb-4">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur opacity-50"></div>
+                      <div className="relative bg-slate-900 p-3 rounded-full">
+                        <Calendar className="h-8 w-8 text-purple-400" />
+                      </div>
+                    </div>
+                  </div>
+                  <h2 className="text-3xl font-bold text-white">{isSignUp ? "Crear cuenta" : "Bienvenido"}</h2>
+                  <p className="text-gray-400 text-sm">
+                    {isSignUp ? "Únete a miles de usuarios que organizan su vida" : "Inicia sesión para continuar"}
+                  </p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {isSignUp && (
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-gray-300 flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Nombre completo
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Tu nombre"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-gray-300 flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Correo electrónico
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-gray-300 flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Contraseña
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                    />
+                  </div>
+
+                  {isSignUp && (
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-gray-300 flex items-center gap-2">
+                        <Lock className="w-4 h-4" />
+                        Confirmar contraseña
+                      </Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        placeholder="••••••••"
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                        required
+                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                      />
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={handleSubmit}
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Procesando...
+                      </>
+                    ) : (
+                      <>
+                        {isSignUp ? "Crear cuenta" : "Iniciar sesión"}
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-white/10" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-slate-900/80 px-2 text-gray-400 rounded-[50px] border border-white/10">O continúa con</span>
+                  </div>
+                </div>
 
         <div className="mt-6">
             <Button 
@@ -256,19 +343,27 @@ const Login = () => {
             </Button>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground">
-          {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
-          <button
-            type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-primary hover:underline"
-          >
-            {isSignUp ? 'Inicia sesión' : 'Regístrate'}
-          </button>
-        </p>
+                <p className="text-center text-sm text-gray-400">
+                  {isSignUp ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignUp(!isSignUp)
+                      setFormData({ name: "", email: "", password: "", confirmPassword: "" })
+                    }}
+                    className="text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text font-semibold hover:from-purple-300 hover:to-blue-300 transition-all duration-300"
+                  >
+                    {isSignUp ? "Inicia sesión" : "Regístrate"}
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  );
+  )
+
 };
 
 export default Login;
