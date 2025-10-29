@@ -160,7 +160,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden flex items-center justify-center ">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
         <div
@@ -177,7 +177,7 @@ const Login = () => {
 
       {/* El contenedor de la grilla */}
       {/* <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center min-h-[100vh]">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center min-h-[100vh] py-5">
 
         {/* El contenedor principal de las dos columnas: */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-x-16 items-center w-full">
