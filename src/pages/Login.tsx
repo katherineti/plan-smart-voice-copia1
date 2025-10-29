@@ -175,25 +175,33 @@ const Login = () => {
 
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40"></div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <div className="hidden lg:flex flex-col justify-center space-y-8">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 w-fit">
-                <Sparkles className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-medium text-purple-300">Agenda con nosotros</span>
-                {/* <span className="text-sm font-medium text-purple-300">Asistente de voz inteligente</span> */}
-              </div>
+      {/* El contenedor de la grilla */}
+      {/* <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center min-h-[100vh]">
 
-              <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
-                <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-                OronixOS
-                </span>
-              </h1>
+        {/* El contenedor principal de las dos columnas: */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-x-16 items-center w-full">
 
-              <p className="text-lg text-gray-300 leading-relaxed max-w-lg">
-                Organiza tu calendario con comandos de voz. Agenda eventos, tareas y festividades automáticamente.
-              </p>
+          {/* columna 1 */}
+          {/* <div className="hidden lg:flex flex-col justify-center space-y-8"> */}
+          {/* <div className="hidden xl:flex flex-col justify-center space-y-8"> */}
+          <div className="hidden xl:flex flex-col justify-center space-y-8">
+            {/* <div className="space-y-4"> */}
+            <div className="space-y-4 max-w-lg mx-auto"> 
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 w-fit">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm font-medium text-purple-300">Agenda con nosotros</span>
+                </div>
+
+                <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                    <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                    OronixOS
+                    </span>
+                </h1>
+
+                <p className="text-lg text-gray-300 leading-relaxed max-w-lg">
+                    Organiza tu calendario con comandos de voz. Agenda eventos, tareas y festividades automáticamente.
+                </p>
             </div>
 
             {/* <div className="space-y-4">
@@ -216,7 +224,51 @@ const Login = () => {
 
           </div>
 
-          <div className="w-full max-w-md mx-auto lg:mx-0">
+          {/* columna 2 */}
+          {/* <div className="w-full max-w-md mx-auto lg:mx-0"> */}
+          <div className="w-full max-w-md mx-auto">
+
+            {/* VISIBLE EN MÓVIL, IPAD, IPAD PRO (Todo lo que es MENOS de XL) */}
+            <div 
+            id="showTitleMovile" 
+            className=" 
+            block xl:hidden  p-4
+                lg:flex 
+                flex-col 
+                justify-center 
+                space-y-8
+                
+                # CLASES AÑADIDAS:
+                items-center 
+                mx-auto 
+                w-full 
+                mb-6
+                mt-6
+            "
+            >
+                <div className="space-y-4 items-center flex flex-col"> 
+                {/* ^^^^ AÑADÍ 'items-center flex flex-col' AQUÍ TAMBIÉN PARA CENTRAR EL TEXTO */}
+
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 w-fit">
+                        <Sparkles className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm font-medium text-purple-300">Agenda con nosotros</span>
+                        {/* <span className="text-sm font-medium text-purple-300">Asistente de voz inteligente</span> */}
+                    </div>
+
+                    <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                        <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                        OronixOS
+                        </span>
+                    </h1>
+
+                    <p className="text-lg text-gray-300 leading-relaxed max-w-lg text-center">
+                    {/* ^^^^ AÑADÍ 'text-center' PARA CENTRAR EL PÁRRAFO */}
+                        Organiza tu calendario con comandos de voz. Agenda eventos, tareas y festividades automáticamente.
+                    </p>
+                </div>
+            </div>
+
+            {/* formulario */}
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
 
