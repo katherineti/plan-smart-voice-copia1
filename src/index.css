@@ -119,3 +119,25 @@
     box-shadow: 0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--accent) / 0.2);
   }
 }
+
+/*
+  Agregado
+  Anula el estilo de autocompletado de WebKit (Chrome, Edge, Safari) para los campos de texto y contraseña.
+*/
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    /* El color de fondo debe ser el mismo que el de tu input, 
+      pero con opacidad 0 y forzado con !important
+    */
+    -webkit-box-shadow: 0 0 0px 1000px #0f172a inset !important; /* #0f172a es slate-900 */
+    
+    /* Fuerza el color del texto a ser blanco para que el ícono blanco del ojo 
+      sea visible sobre el texto
+    */
+    -webkit-text-fill-color: #f8fafc !important; /* #f8fafc es slate-50 (casi blanco) */
+
+    /* Quita el color del borde autocompletado si lo hay */
+    border-color: #334155 !important; /* slate-700 o un color de borde oscuro */
+}

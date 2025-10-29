@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowRight, Calendar, Loader2, Mail, Mountain, Sparkles, User, Lock } from 'lucide-react';
+import { ArrowRight, Calendar, Loader2, Mail, Mountain, Sparkles, User, Lock, EyeOff, Eye } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const Login = () => {
@@ -19,6 +19,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -133,6 +135,18 @@ const Login = () => {
         });
     }
   };
+
+  const handleTogglePassword = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowPassword((prev) => !prev)
+  }
+
+  const handleToggleConfirmPassword = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowConfirmPassword((prev) => !prev)
+  }
 
   // 🟢 Pantalla de Carga: Muestra "Cargando..." mientras Firebase verifica la persistencia inicial
   if (isLoading && !user) {
@@ -252,21 +266,35 @@ const Login = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-300 flex items-center gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-gray-300 flex items-center gap-2">
                       <Lock className="w-4 h-4" />
                       Contraseña
                     </Label>
+                  <div className="relative group">
+                    {/* <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-300/80 group-focus-within:text-orange-300 transition-colors z-10 pointer-events-none" /> */}
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       required
                       className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
                     />
+                    <button
+                      type="button"
+                      onClick={handleTogglePassword}
+                      onMouseDown={(e) => e.preventDefault()}
+                    //   className="absolute right-2 top-1/2 -translate-y-1/2 text-white/70 hover:text-orange-300 transition-colors p-2 rounded-lg hover:bg-white/10 z-20 cursor-pointer"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-white/70 hover:text-purple-400 transition-colors p-2 rounded-lg hover:bg-white/10 z-20 cursor-pointer"
+                      aria-label="Toggle password visibility"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
+                </div>
 
                   {isSignUp && (
                     <div className="space-y-2">
@@ -274,15 +302,29 @@ const Login = () => {
                         <Lock className="w-4 h-4" />
                         Confirmar contraseña
                       </Label>
+                   
+                    <div className="relative group">
+                      {/* <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-300/80 group-focus-within:text-orange-300 transition-colors z-10 pointer-events-none" /> */}
                       <Input
                         id="confirmPassword"
-                        type="password"
-                        placeholder="••••••••"
+                        type={showConfirmPassword ? "text" : "password"}
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                         required
                         className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                        placeholder="••••••••"
                       />
+                      <button
+                        type="button"
+                        onClick={handleToggleConfirmPassword}
+                        onMouseDown={(e) => e.preventDefault()}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-white/70 hover:text-purple-400 transition-colors p-2 rounded-lg hover:bg-white/10 z-20 cursor-pointer"
+                        aria-label="Toggle confirm password visibility"
+                        tabIndex={-1}
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                     </div>
                   )}
 
@@ -310,8 +352,9 @@ const Login = () => {
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-white/10" />
                   </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-slate-900/80 px-2 text-gray-400 rounded-[50px] border border-white/10">O continúa con</span>
+                  {/* <div className="relative flex justify-center text-xs uppercase"> */}
+                  <div className="relative flex justify-center text-xs ">
+                    <span className="bg-slate-900/80 px-2 py-1 text-gray-400 rounded-[50px] border border-white/10">O continúa con</span>
                   </div>
                 </div>
 
