@@ -119,6 +119,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
+
+      if(!email || !password) { 
+      // Crear una instancia de Error
+        const error = new Error("Todos los campos son obligatorios.");
+
+        // Esto simula cómo funcionan los errores de Firebase Auth
+        // Asignar una propiedad 'code' al objeto Error
+        const typedError = error as Error & { code: string }; 
+        typedError.code = "auth/missing-required-field"; 
+
+        if (typedError.code === "auth/missing-required-field") {
+          console.log("Faltan campos.");
+        }
+        
+        throw typedError;        
+      }
+
       // console.log("iniciando sesion: " , email, password)
       // Uso del método real de Firebase para Email/Password
       await signInWithEmailAndPassword(auth, email, password);
@@ -134,10 +151,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    const signUp = async (email: string, password: string, name: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // 🟢 Uso del método real de Firebase para la creación de usuario
+      
+      if(!email || !password || !name) {
+        const error = new Error("Todos los campos son obligatorios.");
+        const typedError = error as Error & { code: string }; 
+        typedError.code = "auth/missing-required-field"; 
+
+        if (typedError.code === "auth/missing-required-field") {
+          console.log("Faltan campos.");
+        }
+
+        throw typedError;        
+      }
+      // Uso del método real de Firebase para la creación de usuario
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-      // 🟢 Actualizar el perfil para establecer el nombre (displayName)
+      // Actualizar el perfil para establecer el nombre (displayName)
       await updateProfile(userCredential.user, {
         displayName: name,
         photoURL: null 

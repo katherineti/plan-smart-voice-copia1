@@ -52,6 +52,7 @@ const Login = () => {
             case 'auth/user-disabled':
                 return 'El usuario ha sido deshabilitado.';
             case 'auth/user-not-found':
+                return 'Usuario no encontrado.';
             case 'auth/wrong-password':
                 return 'Credenciales inválidas.';
             case 'auth/invalid-credential':
@@ -62,6 +63,8 @@ const Login = () => {
                 return 'La contraseña debe tener al menos 6 caracteres.';
             case 'auth/too-many-requests':
                 return 'Demasiadas solicitudes de autenticación. Debe esperar 15min para volver a intentar';
+            case 'auth/missing-required-field':
+                return error.message;
             default:
                 return 'Error desconocido. Inténtalo de nuevo.';
         }
