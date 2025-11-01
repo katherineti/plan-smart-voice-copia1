@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowRight, Calendar, Loader2, Mail, Mountain, Sparkles, User, Lock, EyeOff, Eye } from 'lucide-react';
+import { ArrowRight, Calendar, Loader2, Mail, Sparkles, User, Lock, EyeOff, Eye } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const Login = () => {
@@ -25,7 +25,8 @@ const Login = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    error: '' //manejo de errores dentro del formulario
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false); // Estado local para el formulario de Email/Pass
@@ -65,6 +66,10 @@ const Login = () => {
                 return 'Demasiadas solicitudes de autenticación. Debe esperar 15min para volver a intentar';
             case 'auth/missing-required-field':
                 return error.message;
+            case 'auth-personal/the-passwords-do-not-match':
+                return "Las contraseñas no coinciden.";
+            case "Error de Redirección google":
+                return "No se pudo iniciar el proceso de Google.";
             default:
                 return 'Error desconocido. Inténtalo de nuevo.';
         }
@@ -77,13 +82,16 @@ const Login = () => {
     setIsSubmitting(true);
     
     const { email, password, name, confirmPassword } = formData;
-    
+    console.log("email: " , email, ". password: " , password, ". name: " , name, ". confirmPassword: " , confirmPassword)
     if (isSignUp && password !== confirmPassword) {
-      toast({
+     /*  toast({
         title: "Error de Validación",
         description: "Las contraseñas no coinciden.",
         variant: "destructive",
-      });
+      }); */
+
+      let description = parseFirebaseError({ code: 'auth-personal/the-passwords-do-not-match' })
+      setFormData({ ...formData, error: description });
       setIsSubmitting(false);
       return;
     }
@@ -109,17 +117,27 @@ const Login = () => {
         title = "Error de Autenticación";
         console.log("error" , error)
         description = parseFirebaseError(error);
+        setFormData({ ...formData, error: description });
     } finally {
         setIsSubmitting(false);
-
-        toast({
+        console.log("title " , title, ". description: " , description, ". success: " , success)
+    /*     toast({
             title: title,
             description: description,
             variant: success ? "default" : "destructive",
-        });
-
+        }); */
+        
+        if (!success) {
+            setFormData({ ...formData, error: description });
+        }
         if (success) {
             // La navegación la maneja el useEffect
+            setFormData({ ...formData, error: '' });
+            toast({
+                title: title,
+                description: description,
+                variant: success ? "default" : "destructive",
+            }); 
         }
     }
   };
@@ -131,11 +149,14 @@ const Login = () => {
         // El código después de await NO se ejecuta si la redirección es exitosa.
     } catch (error) {
         console.error("Error al iniciar la redirección de Google:", error);
-        toast({
+/*         toast({
             title: "Error de Redirección",
             description: "No se pudo iniciar el proceso de Google.",
             variant: "destructive",
-        });
+        }); */
+
+        let description = parseFirebaseError({ code: "Error de Redirección google" })
+        setFormData({ ...formData, error: description });
     }
   };
 
@@ -388,6 +409,13 @@ const Login = () => {
                     </div>
                   )}
 
+                  {/* Mostrar mensaje de error si existe */}
+                   {formData.error && ( 
+                    <div className="error text-red-500 text-sm text-center mt-2">
+                      {formData.error}
+                    </div>
+                  )}   
+
                   <Button
                     onClick={handleSubmit}
                     type="submit"
@@ -452,7 +480,7 @@ const Login = () => {
                     type="button"
                     onClick={() => {
                       setIsSignUp(!isSignUp)
-                      setFormData({ name: "", email: "", password: "", confirmPassword: "" })
+                      setFormData({ name: "", email: "", password: "", confirmPassword: "", error:"" })
                     }}
                     className="text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text font-semibold hover:from-purple-300 hover:to-blue-300 transition-all duration-300"
                   >

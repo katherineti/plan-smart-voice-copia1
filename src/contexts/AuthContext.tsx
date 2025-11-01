@@ -12,6 +12,9 @@ import {
 import { auth } from '../firebase/clientFirebase.config'; 
 import { loginGoogle } from '../auth/auth_google_provider_create'; 
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+
+const { toast } = useToast();
 
 interface User {
   id: string;
@@ -117,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
+    // setIsLoading(true);
     try {
 
       if(!email || !password) { 
@@ -149,7 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
    const signUp = async (email: string, password: string, name: string): Promise<boolean> => {
-    setIsLoading(true);
+    // setIsLoading(true);
     try {
       
       if(!email || !password || !name) {
@@ -187,6 +190,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log("Cierre de sesión de Firebase exitoso.");
     }).catch((error) => {
         console.error("Error al cerrar sesión de Firebase:", error);
+        toast({
+          title: "Error de Cierre de Sesión",
+          description: "No se pudo cerrar la sesión. Inténtalo de nuevo.",
+          variant: "destructive",
+        });
     }).finally(() => {
         // onAuthStateChanged pondrá 'user' a null
     });
