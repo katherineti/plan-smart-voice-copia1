@@ -12,9 +12,7 @@ import {
 import { auth } from '../firebase/clientFirebase.config'; 
 import { loginGoogle } from '../auth/auth_google_provider_create'; 
 import { Loader2 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-
-const { toast } = useToast();
+import { toast } from './../components/ui/use-toast';
 
 interface User {
   id: string;
